@@ -2,6 +2,7 @@ import {
   clamp,
   DEFAULTS,
   generatePalette,
+  hexToXyY,
   normalizeHex,
   PARAM_LIMITS,
 } from "./palette-core.js";
@@ -26,9 +27,18 @@ const dom = {
   seed: document.getElementById("seed"),
   status: document.getElementById("status"),
   paletteGrid: document.getElementById("paletteGrid"),
+  xyySvg: document.getElementById("xyySvg"),
+  xyyEmpty: document.getElementById("xyyEmpty"),
   copyAllBtn: document.getElementById("copyAllBtn"),
   downloadBtn: document.getElementById("downloadBtn"),
 };
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+const CHART_WIDTH = 420;
+const CHART_HEIGHT = 300;
+const CHART_PAD = { left: 44, right: 16, top: 16, bottom: 34 };
+const X_RANGE = { min: 0, max: 0.8, step: 0.1 };
+const Y_RANGE = { min: 0, max: 0.9, step: 0.1 };
 
 function requireDom(name, value) {
   if (!value) throw new Error(`Missing required DOM element: ${name}`);
@@ -100,6 +110,200 @@ function cardForColor(hex, label = "") {
   return item;
 }
 
+function createSvgEl(name, attrs = {}) {
+  const el = document.createElementNS(SVG_NS, name);
+  Object.entries(attrs).forEach(([k, v]) => {
+    el.setAttribute(k, String(v));
+  });
+  return el;
+}
+
+function xToPlot(x) {
+  const width = CHART_WIDTH - CHART_PAD.left - CHART_PAD.right;
+  const t = clamp((x - X_RANGE.min) / (X_RANGE.max - X_RANGE.min), 0, 1);
+  return CHART_PAD.left + t * width;
+}
+
+function yToPlot(y) {
+  const height = CHART_HEIGHT - CHART_PAD.top - CHART_PAD.bottom;
+  const t = clamp((y - Y_RANGE.min) / (Y_RANGE.max - Y_RANGE.min), 0, 1);
+  return CHART_HEIGHT - CHART_PAD.bottom - t * height;
+}
+
+function renderXyyVisualizer(generated, fixedHexes) {
+  dom.xyySvg.innerHTML = "";
+
+  const hasGenerated = generated.length > 0;
+  const hasFixed = fixedHexes.length > 0;
+
+  if (!hasGenerated && !hasFixed) {
+    dom.xyyEmpty.hidden = false;
+    return;
+  }
+
+  dom.xyyEmpty.hidden = true;
+
+  for (let gx = X_RANGE.min; gx <= X_RANGE.max + 1e-9; gx += X_RANGE.step) {
+    const x = xToPlot(gx);
+    dom.xyySvg.appendChild(
+      createSvgEl("line", {
+        x1: x,
+        y1: yToPlot(Y_RANGE.min),
+        x2: x,
+        y2: yToPlot(Y_RANGE.max),
+        class: "xyy-grid",
+      }),
+    );
+    dom.xyySvg.appendChild(
+      createSvgEl("text", {
+        x,
+        y: CHART_HEIGHT - 8,
+        "text-anchor": "middle",
+        class: "xyy-label",
+      }),
+    ).textContent = gx.toFixed(1);
+  }
+
+  for (let gy = Y_RANGE.min; gy <= Y_RANGE.max + 1e-9; gy += Y_RANGE.step) {
+    const y = yToPlot(gy);
+    dom.xyySvg.appendChild(
+      createSvgEl("line", {
+        x1: xToPlot(X_RANGE.min),
+        y1: y,
+        x2: xToPlot(X_RANGE.max),
+        y2: y,
+        class: "xyy-grid",
+      }),
+    );
+    dom.xyySvg.appendChild(
+      createSvgEl("text", {
+        x: 30,
+        y: y + 3,
+        "text-anchor": "end",
+        class: "xyy-label",
+      }),
+    ).textContent = gy.toFixed(1);
+  }
+
+  dom.xyySvg.appendChild(
+    createSvgEl("line", {
+      x1: xToPlot(X_RANGE.min),
+      y1: yToPlot(Y_RANGE.min),
+      x2: xToPlot(X_RANGE.max),
+      y2: yToPlot(Y_RANGE.min),
+      class: "xyy-axis",
+    }),
+  );
+
+  dom.xyySvg.appendChild(
+    createSvgEl("line", {
+      x1: xToPlot(X_RANGE.min),
+      y1: yToPlot(Y_RANGE.min),
+      x2: xToPlot(X_RANGE.min),
+      y2: yToPlot(Y_RANGE.max),
+      class: "xyy-axis",
+    }),
+  );
+
+  dom.xyySvg.appendChild(
+    createSvgEl("text", {
+      x: xToPlot(X_RANGE.max),
+      y: CHART_HEIGHT - 8,
+      "text-anchor": "end",
+      class: "xyy-label",
+    }),
+  ).textContent = "x";
+
+  dom.xyySvg.appendChild(
+    createSvgEl("text", {
+      x: 14,
+      y: yToPlot(Y_RANGE.max),
+      "text-anchor": "start",
+      class: "xyy-label",
+    }),
+  ).textContent = "y";
+
+  fixedHexes.forEach((hex, i) => {
+    const p = hexToXyY(hex);
+    if (!p) return;
+    const cx = xToPlot(p.x);
+    const cy = yToPlot(p.y);
+    const r = 4 + 8 * clamp(p.Y, 0, 1);
+    const d = `M ${cx} ${cy - r} L ${cx + r} ${cy} L ${cx} ${cy + r} L ${cx - r} ${cy} Z`;
+
+    const point = createSvgEl("path", {
+      d,
+      fill: p.hex,
+      class: "xyy-point xyy-point-fixed",
+    });
+
+    const title = createSvgEl("title");
+    title.textContent = `Fixed ${i + 1}: ${p.hex} | x=${p.x.toFixed(3)}, y=${p.y.toFixed(3)}, Y=${p.Y.toFixed(3)}`;
+    point.appendChild(title);
+    dom.xyySvg.appendChild(point);
+  });
+
+  generated.forEach((color, i) => {
+    const p = hexToXyY(color.hex);
+    if (!p) return;
+    const cx = xToPlot(p.x);
+    const cy = yToPlot(p.y);
+    const r = 4 + 8 * clamp(p.Y, 0, 1);
+
+    const point = createSvgEl("circle", {
+      cx,
+      cy,
+      r,
+      fill: color.hex,
+      class: "xyy-point",
+    });
+
+    const title = createSvgEl("title");
+    title.textContent = `Generated ${i + 1}: ${color.hex} | x=${p.x.toFixed(3)}, y=${p.y.toFixed(3)}, Y=${p.Y.toFixed(3)}`;
+    point.appendChild(title);
+    dom.xyySvg.appendChild(point);
+  });
+
+  const legendX = xToPlot(X_RANGE.max) - 120;
+  const legendY = yToPlot(Y_RANGE.max) + 18;
+
+  if (hasGenerated) {
+    const genSwatch = createSvgEl("circle", {
+      cx: legendX,
+      cy: legendY,
+      r: 5,
+      fill: "#9fbcff",
+      class: "xyy-point",
+    });
+    dom.xyySvg.appendChild(genSwatch);
+    dom.xyySvg.appendChild(
+      createSvgEl("text", {
+        x: legendX + 10,
+        y: legendY + 3,
+        class: "xyy-label",
+      }),
+    ).textContent = "Generated";
+  }
+
+  if (hasFixed) {
+    const fy = legendY + (hasGenerated ? 16 : 0);
+    const d = `M ${legendX} ${fy - 5} L ${legendX + 5} ${fy} L ${legendX} ${fy + 5} L ${legendX - 5} ${fy} Z`;
+    const fixedSwatch = createSvgEl("path", {
+      d,
+      fill: "#8de5ff",
+      class: "xyy-point xyy-point-fixed",
+    });
+    dom.xyySvg.appendChild(fixedSwatch);
+    dom.xyySvg.appendChild(
+      createSvgEl("text", {
+        x: legendX + 10,
+        y: fy + 3,
+        class: "xyy-label",
+      }),
+    ).textContent = "Fixed anchor";
+  }
+}
+
 function renderPalette() {
   dom.paletteGrid.innerHTML = "";
 
@@ -107,6 +311,9 @@ function renderPalette() {
     hex: c.hex,
     label: `Generated ${i + 1}`,
   }));
+  const fixedHexes = state.fixedColors
+    .map((item) => normalizeHex(item.hex))
+    .filter(Boolean);
 
   if (!generated.length) {
     const empty = document.createElement("p");
@@ -114,12 +321,15 @@ function renderPalette() {
     empty.textContent =
       "Click Generate Palette to create your first set of colors.";
     dom.paletteGrid.appendChild(empty);
+    renderXyyVisualizer([], fixedHexes);
     return;
   }
 
   for (const c of generated) {
     dom.paletteGrid.appendChild(cardForColor(c.hex, c.label));
   }
+
+  renderXyyVisualizer(generated, fixedHexes);
 }
 
 function findFixedColorIndex(id) {

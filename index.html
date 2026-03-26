@@ -3,10 +3,10 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Client Side Color Palette Generator</title>
+        <title>Color Palette Generator</title>
         <meta
             name="description"
-            content="Generate highly distinguishable color palettes in your browser with optional fixed colors."
+            content="Generate highly distinguishable color palettes with optional fixed anchor colors."
         />
         <link rel="stylesheet" href="./styles.css" />
     </head>
@@ -16,12 +16,11 @@
                 <div class="title-wrap">
                     <h1>Color Palette Generator</h1>
                     <p>
-                        Pick any number of fixed colors, choose how many colors
-                        to generate, and build a high-contrast palette entirely
-                        client-side.
+                        Pick fixed anchor colors, choose how many colors to
+                        generate, and build a high-contrast palette.
                     </p>
                 </div>
-                <div class="badge">Client-side only</div>
+                <div class="badge">Palette Tool</div>
             </header>
 
             <section class="layout">
@@ -189,9 +188,26 @@
                 ></div>
             </section>
 
-            <p class="footer-note">
-                Everything runs in your browser. No custom server required.
-            </p>
+            <section class="card visualizer">
+                <h2 class="section-title">xyY Visualizer</h2>
+                <p class="section-subtitle">
+                    Generated colors and fixed anchors on the CIE xy plane;
+                    marker size reflects Y (luminance).
+                </p>
+                <div class="xyy-wrap" role="img" aria-label="CIE xyY color plot">
+                    <svg
+                        id="xyySvg"
+                        class="xyy-svg"
+                        viewBox="0 0 420 300"
+                        preserveAspectRatio="xMidYMid meet"
+                    ></svg>
+                    <p id="xyyEmpty" class="xyy-empty">
+                        Generate a palette to plot the selected colors.
+                    </p>
+                </div>
+            </section>
+
+            <p class="footer-note">Designed for high-contrast palettes.</p>
         </main>
 
         <template id="fixedColorRowTemplate">

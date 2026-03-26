@@ -158,7 +158,7 @@ function weightedPairDistance(colorA, colorB, confusionWeight) {
   const vy = dxyy / dxyNorm;
 
   const cosTheta = Math.abs(ux * vx + uy * vy);
-  const weight = 1 + confusionWeight * cosTheta;
+  const weight = Math.max(EPS, 1 - confusionWeight * cosTheta);
   return d * weight;
 }
 
@@ -202,6 +202,19 @@ function hexToColorStruct(hex) {
   const xy = xyzToXy(xyz);
   const oklab = xyzToOklab(xyz);
   return { hex: normalizeHex(hex), rgb, xyz, xy, oklab };
+}
+
+export function hexToXyY(hex) {
+  const rgb = hexToRgb01(hex);
+  if (!rgb) return null;
+  const xyz = rgbToXyz(rgb);
+  const xy = xyzToXy(xyz);
+  return {
+    hex: normalizeHex(hex),
+    x: xy[0],
+    y: xy[1],
+    Y: xyz[1],
+  };
 }
 
 function nearestDistance(candidate, context, confusionWeight) {

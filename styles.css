@@ -391,6 +391,62 @@ button:disabled {
     font-size: 0.9rem;
 }
 
+.xyy-wrap {
+    position: relative;
+    border: 1px solid #30487f;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #101a33, #0f1830);
+    padding: 8px;
+    min-height: 250px;
+}
+
+.xyy-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.xyy-empty {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    margin: 0;
+    color: var(--muted);
+    text-align: center;
+    padding: 12px;
+}
+
+.xyy-empty[hidden] {
+    display: none;
+}
+
+.xyy-grid {
+    stroke: #2a3e75;
+    stroke-width: 1;
+}
+
+.xyy-axis {
+    stroke: #6f8fd9;
+    stroke-width: 1.2;
+}
+
+.xyy-label {
+    fill: #9db2e8;
+    font-size: 10px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.xyy-point {
+    stroke: #f5f8ff;
+    stroke-width: 1.2;
+}
+
+.xyy-point-fixed {
+    stroke: #9be7ff;
+    stroke-width: 1.4;
+}
+
 @media (max-width: 920px) {
     .layout {
         grid-template-columns: 1fr;
