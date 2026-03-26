@@ -87,25 +87,44 @@ def calc_distances(pool: np.ndarray, fixed: np.ndarray) -> np.ndarray:
 
 
 def generate_color_palette(
-    n: int = 6, refinements: int = 6, pool_size: int = 2000, fixed: List[Color] = []
+    n: int = 6,
+    refinements: int = 6,
+    pool_size: int = 2000,
+    fixed: Optional[List[Color]] = None,
 ) -> List[Color]:
+    if fixed is None:
+        fixed = []
+
     pool = np.empty((pool_size, 3), dtype=float)
     for i in tqdm(range(pool_size), desc="Generating color pool"):
         pool[i] = Color().get_random().rgb
     fixed_rgb = np.array([color.rgb for color in fixed], dtype=float)
     selected_colors: List[Optional[Color]] = [None] * n
     for _ in tqdm(range(refinements), desc="Refining palette"):
+        changed = False
         for color_index in range(n):
-            others = np.vstack(
-                [fixed_rgb]
-                + [color.rgb for color in selected_colors if color is not None]
+            others_list = [fixed_rgb] + [
+                color.rgb
+                for i, color in enumerate(selected_colors)
+                if color is not None and i != color_index
+            ]
+            others = (
+                np.vstack(others_list)
+                if len(others_list) > 0
+                else np.empty((0, 3), dtype=float)
             )
             distances = calc_distances(pool, others)
             min_distances = np.min(distances, axis=1)
             selected_index = np.argmax(min_distances)
-            selected_colors[color_index] = Color(channels=pool[selected_index])
 
-        show_palette([color for color in selected_colors if color is not None])
+            new_rgb = pool[selected_index]
+            current_color = selected_colors[color_index]
+            if current_color is None or not np.allclose(current_color.rgb, new_rgb):
+                changed = True
+                selected_colors[color_index] = Color(channels=new_rgb)
+
+        if not changed:
+            break
 
     return selected_colors
 
