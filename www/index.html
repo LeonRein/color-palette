@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Client Side Color Palette Generator</title>
+        <meta
+            name="description"
+            content="Generate highly distinguishable color palettes in your browser with optional fixed colors."
+        />
+        <link rel="stylesheet" href="./styles.css" />
+    </head>
+    <body>
+        <main class="app">
+            <header class="card header">
+                <div class="title-wrap">
+                    <h1>Color Palette Generator</h1>
+                    <p>
+                        Pick any number of fixed colors, choose how many colors
+                        to generate, and build a high-contrast palette entirely
+                        client-side.
+                    </p>
+                </div>
+                <div class="badge">Client-side only</div>
+            </header>
+
+            <section class="layout">
+                <div class="card">
+                    <h2 class="section-title">Controls</h2>
+                    <p class="section-subtitle">Tune generation parameters</p>
+
+                    <div class="controls">
+                        <div class="row">
+                            <div class="field">
+                                <label for="generatedCount"
+                                    >Generated colors</label
+                                >
+                                <input
+                                    id="generatedCount"
+                                    type="number"
+                                    min="1"
+                                    max="128"
+                                    step="1"
+                                    value="8"
+                                />
+                            </div>
+
+                            <div class="field">
+                                <label for="poolSize">Pool size</label>
+                                <input
+                                    id="poolSize"
+                                    type="number"
+                                    min="100"
+                                    max="20000"
+                                    step="100"
+                                    value="1000"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="field">
+                                <label for="refinements">Refinements</label>
+                                <input
+                                    id="refinements"
+                                    type="number"
+                                    min="1"
+                                    max="200"
+                                    step="1"
+                                    value="20"
+                                />
+                            </div>
+
+                            <div class="field">
+                                <label for="minLightness"
+                                    >Min lightness (0..1)</label
+                                >
+                                <input
+                                    id="minLightness"
+                                    type="number"
+                                    min="0"
+                                    max="1"
+                                    step="0.01"
+                                    value="0"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="field">
+                                <label for="confusionWeight"
+                                    >Confusion weight (0..2)</label
+                                >
+                                <input
+                                    id="confusionWeight"
+                                    type="number"
+                                    min="0"
+                                    max="2"
+                                    step="0.05"
+                                    value="0.5"
+                                />
+                            </div>
+
+                            <div class="field">
+                                <label for="seed">Seed</label>
+                                <input
+                                    id="seed"
+                                    type="number"
+                                    min="0"
+                                    step="1"
+                                    value="42"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="actions">
+                            <button
+                                id="generateBtn"
+                                class="btn-primary"
+                                type="button"
+                            >
+                                Generate Palette
+                            </button>
+                            <button
+                                id="copyAllBtn"
+                                class="btn-secondary"
+                                type="button"
+                            >
+                                Copy All
+                            </button>
+                            <button
+                                id="downloadBtn"
+                                class="btn-secondary"
+                                type="button"
+                            >
+                                Download JSON
+                            </button>
+                        </div>
+
+                        <p id="status" class="status">Ready.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="section-title">Fixed Colors</h2>
+                    <p class="section-subtitle">
+                        Add, remove, or type HEX values like
+                        <code>#FF00AA</code>
+                    </p>
+
+                    <div class="actions">
+                        <button
+                            id="addFixedBtn"
+                            class="btn-secondary"
+                            type="button"
+                        >
+                            + Add Fixed Color
+                        </button>
+                    </div>
+
+                    <div
+                        id="fixedColorsList"
+                        class="fixed-colors"
+                        aria-live="polite"
+                    ></div>
+                </div>
+            </section>
+
+            <section class="card preview">
+                <h2 class="section-title">Palette</h2>
+                <p class="section-subtitle">
+                    Includes valid fixed colors and generated colors
+                </p>
+                <div
+                    id="paletteGrid"
+                    class="palette-grid"
+                    aria-live="polite"
+                ></div>
+            </section>
+
+            <p class="footer-note">
+                Everything runs in your browser. No custom server required.
+            </p>
+        </main>
+
+        <template id="fixedColorRowTemplate">
+            <div class="fixed-color-row">
+                <input
+                    class="fixed-color-picker"
+                    type="color"
+                    value="#000000"
+                />
+                <input
+                    class="fixed-color-hex"
+                    type="text"
+                    value="#000000"
+                    inputmode="text"
+                    spellcheck="false"
+                    aria-label="Hex color"
+                />
+                <button class="btn-danger fixed-color-remove" type="button">
+                    Remove
+                </button>
+            </div>
+        </template>
+
+        <script type="module" src="./app.js"></script>
+    </body>
+</html>
