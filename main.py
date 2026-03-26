@@ -10,12 +10,12 @@ from tqdm import tqdm
 MIN_LIGHTNESS = 0.0
 POOL_SIZE = 1000
 REFINEMENTS = 20
-N = 4  # Number of colors to generate, excluding fixed colors.
+N = 8  # Number of colors to generate, excluding fixed colors.
 
 # Deutan confusion source point in CIE xy.
 DEUTAN_SOURCE_XY = np.array([1.4, -0.4], dtype=float)
 # Strength of confusion-line weighting.
-CONFUSION_WEIGHT = 0.0
+CONFUSION_WEIGHT = 0.5
 EPS = 1e-12
 
 
@@ -202,6 +202,9 @@ def choose_best_candidate_index(
     pool_batch: ColorSpaceBatch,
     others_rgb: np.ndarray,
 ) -> int:
+    if len(others_rgb) == 0:
+        return int(np.random.randint(len(pool_batch.rgb)))
+
     others_batch = transform_rgb_batch(others_rgb)
     distances = pairwise_weighted_distance(pool_batch, others_batch)
     min_distances = np.min(distances, axis=1)
@@ -282,7 +285,7 @@ def show_palette(colors: List[Color]) -> None:
 
 def main() -> None:
     fixed = [
-        # Color(channels=np.array([0.0, 0.0, 0.0])),  # Black
+        Color(channels=np.array([0.0, 0.0, 0.0])),  # Black
         # Color(channels=np.array([1.0, 1.0, 1.0])),  # White
         # Color(channels=np.array([1.0, 1.0, 0.0])),  # Yellow
         # START_COLOR,
@@ -296,7 +299,7 @@ def main() -> None:
         pool_size=POOL_SIZE,
     )
 
-    colors = [START_COLOR, *colors, END_COLOR]
+    # colors = [START_COLOR, *colors, END_COLOR]
 
     for color in colors:
         print(color)
