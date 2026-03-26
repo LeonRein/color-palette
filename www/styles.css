@@ -238,12 +238,30 @@ button:disabled {
 }
 
 .fixed-color-picker {
+    appearance: none;
+    -webkit-appearance: none;
     width: 46px;
     height: 38px;
     border: 1px solid #385095;
-    background: transparent;
+    background: #0f1830;
     border-radius: 8px;
     padding: 0;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.fixed-color-picker::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.fixed-color-picker::-webkit-color-swatch {
+    border: 0;
+    border-radius: 7px;
+}
+
+.fixed-color-picker::-moz-color-swatch {
+    border: 0;
+    border-radius: 7px;
 }
 
 .fixed-color-hex {
@@ -269,6 +287,14 @@ button:disabled {
     background: #132042;
 }
 
+.swatch-fixed {
+    border-color: #4ea8c4;
+}
+
+.swatch-generated {
+    border-color: #30487f;
+}
+
 .swatch-color {
     height: 92px;
 }
@@ -282,6 +308,24 @@ button:disabled {
 .swatch-label {
     font-size: 0.84rem;
     color: var(--muted);
+}
+
+.swatch-kind {
+    display: inline-block;
+    width: fit-content;
+    font-size: 0.72rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #d9e8ff;
+    background: #1f356a;
+    border: 1px solid #4665ad;
+    border-radius: 999px;
+    padding: 2px 7px;
+}
+
+.swatch-fixed .swatch-kind {
+    background: #1f4f64;
+    border-color: #4ea8c4;
 }
 
 .swatch-hex {
