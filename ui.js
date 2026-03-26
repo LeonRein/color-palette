@@ -112,7 +112,7 @@ function renderPalette() {
     const empty = document.createElement("p");
     empty.className = "empty";
     empty.textContent =
-      "No generated colors yet. Add fixed colors if needed, then click Generate Palette.";
+      "Click Generate Palette to create your first set of colors.";
     dom.paletteGrid.appendChild(empty);
     return;
   }

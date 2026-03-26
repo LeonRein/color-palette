@@ -109,10 +109,31 @@ body {
     gap: 12px;
 }
 
+.control-group {
+    display: grid;
+    gap: 10px;
+    border: 1px solid #2b3f74;
+    border-radius: 12px;
+    background: #111b34;
+    padding: 12px;
+}
+
+.group-title {
+    margin: 0;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #9fb4eb;
+}
+
 .row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
+}
+
+.row-single {
+    grid-template-columns: 1fr;
 }
 
 .field {
@@ -147,9 +168,24 @@ input:focus {
 
 .actions {
     display: flex;
-    flex-wrap: wrap;
     gap: 10px;
     margin-top: 2px;
+}
+
+.actions-primary .btn-primary {
+    width: 100%;
+}
+
+.actions-secondary {
+    padding-top: 2px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+}
+
+.actions-secondary .btn-secondary {
+    width: 100%;
+    opacity: 0.92;
 }
 
 button {
@@ -388,5 +424,9 @@ button:disabled {
     .fixed-color-remove {
         grid-column: 1 / -1;
         justify-self: start;
+    }
+
+    .actions-secondary {
+        grid-template-columns: 1fr;
     }
 }

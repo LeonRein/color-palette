@@ -30,90 +30,98 @@
                     <p class="section-subtitle">Tune generation parameters</p>
 
                     <div class="controls">
-                        <div class="row">
-                            <div class="field">
-                                <label for="generatedCount"
-                                    >Generated colors</label
-                                >
-                                <input
-                                    id="generatedCount"
-                                    type="number"
-                                    min="1"
-                                    max="128"
-                                    step="1"
-                                    value="8"
-                                />
+                        <section class="control-group">
+                            <h3 class="group-title">Output</h3>
+                            <div class="row row-single">
+                                <div class="field">
+                                    <label for="generatedCount"
+                                        >Generated colors</label
+                                    >
+                                    <input
+                                        id="generatedCount"
+                                        type="number"
+                                        min="1"
+                                        max="128"
+                                        step="1"
+                                        value="8"
+                                    />
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="control-group">
+                            <h3 class="group-title">Algorithm</h3>
+                            <div class="row">
+                                <div class="field">
+                                    <label for="poolSize">Pool size</label>
+                                    <input
+                                        id="poolSize"
+                                        type="number"
+                                        min="100"
+                                        max="20000"
+                                        step="100"
+                                        value="1000"
+                                    />
+                                </div>
+
+                                <div class="field">
+                                    <label for="refinements">Refinements</label>
+                                    <input
+                                        id="refinements"
+                                        type="number"
+                                        min="1"
+                                        max="200"
+                                        step="1"
+                                        value="20"
+                                    />
+                                </div>
                             </div>
 
-                            <div class="field">
-                                <label for="poolSize">Pool size</label>
-                                <input
-                                    id="poolSize"
-                                    type="number"
-                                    min="100"
-                                    max="20000"
-                                    step="100"
-                                    value="1000"
-                                />
-                            </div>
-                        </div>
+                            <div class="row">
+                                <div class="field">
+                                    <label for="minLightness"
+                                        >Min lightness (0..1)</label
+                                    >
+                                    <input
+                                        id="minLightness"
+                                        type="number"
+                                        min="0"
+                                        max="1"
+                                        step="0.01"
+                                        value="0"
+                                    />
+                                </div>
 
-                        <div class="row">
-                            <div class="field">
-                                <label for="refinements">Refinements</label>
-                                <input
-                                    id="refinements"
-                                    type="number"
-                                    min="1"
-                                    max="200"
-                                    step="1"
-                                    value="20"
-                                />
-                            </div>
-
-                            <div class="field">
-                                <label for="minLightness"
-                                    >Min lightness (0..1)</label
-                                >
-                                <input
-                                    id="minLightness"
-                                    type="number"
-                                    min="0"
-                                    max="1"
-                                    step="0.01"
-                                    value="0"
-                                />
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="field">
-                                <label for="confusionWeight"
-                                    >Confusion weight (0..2)</label
-                                >
-                                <input
-                                    id="confusionWeight"
-                                    type="number"
-                                    min="0"
-                                    max="2"
-                                    step="0.05"
-                                    value="0.5"
-                                />
+                                <div class="field">
+                                    <label for="confusionWeight"
+                                        >Confusion weight (0..2)</label
+                                    >
+                                    <input
+                                        id="confusionWeight"
+                                        type="number"
+                                        min="0"
+                                        max="2"
+                                        step="0.05"
+                                        value="0.5"
+                                    />
+                                </div>
                             </div>
 
-                            <div class="field">
-                                <label for="seed">Seed</label>
-                                <input
-                                    id="seed"
-                                    type="number"
-                                    min="-1"
-                                    step="1"
-                                    value="-1"
-                                />
+                            <div class="row row-single">
+                                <div class="field">
+                                    <label for="seed">Seed</label>
+                                    <input
+                                        id="seed"
+                                        type="number"
+                                        min="-1"
+                                        step="1"
+                                        value="-1"
+                                    />
+                                </div>
                             </div>
-                        </div>
+                        </section>
 
-                        <div class="actions">
+                        <div class="actions actions-primary">
                             <button
                                 id="generateBtn"
                                 class="btn-primary"
@@ -121,6 +129,9 @@
                             >
                                 Generate Palette
                             </button>
+                        </div>
+
+                        <div class="actions actions-secondary">
                             <button
                                 id="copyAllBtn"
                                 class="btn-secondary"
@@ -169,7 +180,7 @@
             <section class="card preview">
                 <h2 class="section-title">Palette</h2>
                 <p class="section-subtitle">
-                    Includes valid fixed colors and generated colors
+                    Generated colors only (fixed colors are used as anchors)
                 </p>
                 <div
                     id="paletteGrid"
