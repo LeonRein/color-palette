@@ -1,5 +1,7 @@
 const DEUTAN_SOURCE_XY = [1.4, -0.4];
 const EPS = 1e-12;
+const D65_WHITE_XY = [0.3127, 0.3290];
+const NEAR_BLACK_SUM_THRESHOLD = 1e-6;
 
 export const PARAM_LIMITS = {
   generatedCount: { min: 1, max: 128, step: 1 },
@@ -208,7 +210,11 @@ export function hexToXyY(hex) {
   const rgb = hexToRgb01(hex);
   if (!rgb) return null;
   const xyz = rgbToXyz(rgb);
-  const xy = xyzToXy(xyz);
+  const xyzSum = xyz[0] + xyz[1] + xyz[2];
+  const xy =
+    xyzSum <= NEAR_BLACK_SUM_THRESHOLD
+      ? D65_WHITE_XY
+      : xyzToXy(xyz);
   return {
     hex: normalizeHex(hex),
     x: xy[0],
