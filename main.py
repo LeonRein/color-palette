@@ -10,6 +10,11 @@ from tqdm import tqdm
 
 MIN_LIGHTNESS = 0.2
 POOL_SIZE = 1000
+REFINEMENTS = 20
+N = 6
+
+
+random.seed(42)
 
 
 @dataclass
@@ -81,19 +86,26 @@ def calc_distances(pool: np.ndarray, fixed: np.ndarray) -> np.ndarray:
     return distances
 
 
-def generate_color_palette(n: int = 6, fixed: List[Color] = []) -> List[Color]:
-    pool = np.empty((POOL_SIZE, 3), dtype=float)
-    for i in tqdm(range(POOL_SIZE), desc="Generating color pool"):
+def generate_color_palette(
+    n: int = 6, refinements: int = 6, pool_size: int = 2000, fixed: List[Color] = []
+) -> List[Color]:
+    pool = np.empty((pool_size, 3), dtype=float)
+    for i in tqdm(range(pool_size), desc="Generating color pool"):
         pool[i] = Color().get_random().rgb
     fixed_rgb = np.array([color.rgb for color in fixed], dtype=float)
-    selected_colors = []
-    for _ in tqdm(range(n), desc="Selecting colors"):
-        distances = calc_distances(pool, fixed_rgb)
-        min_distances = np.min(distances, axis=1)
-        selected_index = np.argmax(min_distances)
-        selected_color = Color(channels=pool[selected_index])
-        selected_colors.append(selected_color)
-        fixed_rgb = np.vstack([fixed_rgb, selected_color.rgb])
+    selected_colors: List[Optional[Color]] = [None] * n
+    for _ in tqdm(range(refinements), desc="Refining palette"):
+        for color_index in range(n):
+            others = np.vstack(
+                [fixed_rgb]
+                + [color.rgb for color in selected_colors if color is not None]
+            )
+            distances = calc_distances(pool, others)
+            min_distances = np.min(distances, axis=1)
+            selected_index = np.argmax(min_distances)
+            selected_colors[color_index] = Color(channels=pool[selected_index])
+
+        show_palette([color for color in selected_colors if color is not None])
 
     return selected_colors
 
@@ -132,7 +144,9 @@ def main():
         Color(channels=np.array([1.0, 1.0, 1.0])),  # White
         Color(channels=np.array([0.0, 0.0, 1.0])),  # Blue
     ]
-    colors = generate_color_palette(fixed=fixed)
+    colors = generate_color_palette(
+        fixed=fixed, n=N, refinements=REFINEMENTS, pool_size=POOL_SIZE
+    )
 
     for color in colors:
         print(color)
