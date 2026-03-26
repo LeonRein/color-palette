@@ -447,6 +447,12 @@ button:disabled {
     stroke-width: 1.4;
 }
 
+.xyy-gamut {
+    fill: rgba(111, 143, 217, 0.07);
+    stroke: #7ea3ff;
+    stroke-width: 1.4;
+}
+
 @media (max-width: 920px) {
     .layout {
         grid-template-columns: 1fr;

@@ -37,8 +37,13 @@ const SVG_NS = "http://www.w3.org/2000/svg";
 const CHART_WIDTH = 420;
 const CHART_HEIGHT = 300;
 const CHART_PAD = { left: 44, right: 16, top: 16, bottom: 34 };
-const X_RANGE = { min: 0, max: 0.8, step: 0.1 };
-const Y_RANGE = { min: 0, max: 0.9, step: 0.1 };
+const X_RANGE = { min: 0.1, max: 0.68, step: 0.05 };
+const Y_RANGE = { min: 0.02, max: 0.64, step: 0.05 };
+const SRGB_PRIMARIES_XY = {
+  r: [0.64, 0.33],
+  g: [0.30, 0.60],
+  b: [0.15, 0.06],
+};
 
 function requireDom(name, value) {
   if (!value) throw new Error(`Missing required DOM element: ${name}`);
@@ -222,6 +227,21 @@ function renderXyyVisualizer(generated, fixedHexes) {
       class: "xyy-label",
     }),
   ).textContent = "y";
+
+  const gamutPoints = [
+    SRGB_PRIMARIES_XY.r,
+    SRGB_PRIMARIES_XY.g,
+    SRGB_PRIMARIES_XY.b,
+  ]
+    .map(([x, y]) => `${xToPlot(x)},${yToPlot(y)}`)
+    .join(" ");
+
+  dom.xyySvg.appendChild(
+    createSvgEl("polygon", {
+      points: gamutPoints,
+      class: "xyy-gamut",
+    }),
+  );
 
   fixedHexes.forEach((hex, i) => {
     const p = hexToXyY(hex);
