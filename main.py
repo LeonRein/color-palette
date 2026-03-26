@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 import colour
+import matplotlib.pyplot as plt
 import numpy as np
 from numpy.random.mtrand import f
 from tqdm import tqdm
@@ -97,15 +98,46 @@ def generate_color_palette(n: int = 6, fixed: List[Color] = []) -> List[Color]:
     return selected_colors
 
 
+def show_palette(colors: List[Color]) -> None:
+    swatches = colors
+    fig, ax = plt.subplots(figsize=(max(6, len(swatches) * 1.2), 2))
+    ax.set_xlim(0, len(swatches))
+    ax.set_ylim(0, 1)
+
+    for i, color in enumerate(swatches):
+        ax.add_patch(plt.Rectangle((i, 0), 1, 1, color=color.rgb))
+        ax.text(
+            i + 0.5,
+            0.5,
+            str(color),
+            ha="center",
+            va="center",
+            fontsize=10,
+            color="white" if np.mean(color.rgb) < 0.5 else "black",
+        )
+
+    ax.set_xticks(np.arange(len(swatches)) + 0.5)
+    ax.set_xticklabels([str(c) for c in swatches], rotation=45, ha="right")
+    ax.set_yticks([])
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+
+    plt.tight_layout()
+    plt.show()
+
+
 def main():
     fixed = [
         Color(channels=np.array([0.0, 0.0, 0.0])),  # Black
-        Color(channels=np.array([1.0, 1.0, 1.0])),  # Green
-        Color(channels=np.array([0.0, 0.0, 1.0])),  # Yellow
+        Color(channels=np.array([1.0, 1.0, 1.0])),  # White
+        Color(channels=np.array([0.0, 0.0, 1.0])),  # Blue
     ]
     colors = generate_color_palette(fixed=fixed)
+
     for color in colors:
         print(color)
+
+    show_palette(colors)
 
 
 if __name__ == "__main__":
