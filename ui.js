@@ -22,6 +22,7 @@ const dom = {
   generatedCount: document.getElementById("generatedCount"),
   poolSize: document.getElementById("poolSize"),
   refinements: document.getElementById("refinements"),
+  randomRestarts: document.getElementById("randomRestarts"),
   minLightness: document.getElementById("minLightness"),
   confusionWeight: document.getElementById("confusionWeight"),
   seed: document.getElementById("seed"),
@@ -455,6 +456,11 @@ function readParams() {
       DEFAULTS.refinements,
       PARAM_LIMITS.refinements,
     ),
+    randomRestarts: readBoundedInt(
+      dom.randomRestarts,
+      DEFAULTS.randomRestarts,
+      PARAM_LIMITS.randomRestarts,
+    ),
     minLightness: readBoundedFloat(
       dom.minLightness,
       DEFAULTS.minLightness,
@@ -473,10 +479,6 @@ async function onGenerateClick() {
   if (state.isGenerating) return;
 
   const params = readParams();
-  const effectiveSeed =
-    params.seed === -1
-      ? Math.floor(Math.random() * 0x100000000)
-      : params.seed;
   const fixedHexes = state.fixedColors.map((item) => normalizeHex(item.hex)).filter(Boolean);
 
   try {
@@ -485,17 +487,38 @@ async function onGenerateClick() {
 
     const t0 = performance.now();
 
-    const result = generatePalette({
-      ...params,
-      seed: effectiveSeed,
-      fixedHexes,
-    });
+    let result;
+    if (params.seed === -1) {
+      let best = null;
+      for (let i = 0; i < params.randomRestarts; i++) {
+        const trialSeed = Math.floor(Math.random() * 0x100000000);
+        const trial = generatePalette({
+          ...params,
+          seed: trialSeed,
+          fixedHexes,
+        });
+        if (!best || trial.score > best.score) {
+          best = trial;
+        }
+      }
+      result = best;
+    } else {
+      result = generatePalette({
+        ...params,
+        seed: params.seed,
+        fixedHexes,
+      });
+    }
 
     state.generated = result.generated;
     renderPalette();
 
     const ms = Math.round(performance.now() - t0);
-    setStatus(`Generated ${state.generated.length} colors in ${ms} ms.`, "ok");
+    const restartText =
+      params.seed === -1
+        ? ` (best of ${params.randomRestarts} random starts)`
+        : "";
+    setStatus(`Generated ${state.generated.length} colors in ${ms} ms${restartText}.`, "ok");
   } catch (e) {
     console.error(e);
     setStatus("Generation failed. Check console for details.", "err");
@@ -570,6 +593,11 @@ function wireEvents() {
     dom.refinements,
     PARAM_LIMITS.refinements,
     DEFAULTS.refinements,
+  );
+  applyNumericInputConfig(
+    dom.randomRestarts,
+    PARAM_LIMITS.randomRestarts,
+    DEFAULTS.randomRestarts,
   );
   applyNumericInputConfig(
     dom.minLightness,

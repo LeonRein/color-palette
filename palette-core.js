@@ -7,6 +7,7 @@ export const PARAM_LIMITS = {
   generatedCount: { min: 1, max: 128, step: 1 },
   poolSize: { min: 100, max: 20000, step: 100 },
   refinements: { min: 0, max: 300, step: 1 },
+  randomRestarts: { min: 1, max: 50, step: 1 },
   minLightness: { min: 0, max: 1, step: 0.01 },
   confusionWeight: { min: 0, max: 3, step: 0.05 },
   seed: { min: -1, max: Number.MAX_SAFE_INTEGER, step: 1 },
@@ -16,6 +17,7 @@ export const DEFAULTS = {
   generatedCount: 8,
   poolSize: 1000,
   refinements: 20,
+  randomRestarts: 5,
   minLightness: 0.0,
   confusionWeight: 0.5,
   seed: -1,
@@ -241,6 +243,20 @@ function nearestDistance(candidate, context, confusionWeight) {
   return best;
 }
 
+function paletteScore(generated, fixed, confusionWeight) {
+  const all = fixed.concat(generated);
+  if (all.length < 2) return Infinity;
+
+  let best = Infinity;
+  for (let i = 0; i < all.length; i++) {
+    for (let j = i + 1; j < all.length; j++) {
+      const d = weightedPairDistance(all[i], all[j], confusionWeight);
+      if (d < best) best = d;
+    }
+  }
+  return best;
+}
+
 export function generatePalette({
   generatedCount,
   poolSize,
@@ -302,5 +318,6 @@ export function generatePalette({
       hex: c.hex,
       rgb: c.rgb,
     })),
+    score: paletteScore(chosen, fixed, confusionWeight),
   };
 }
