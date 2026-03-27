@@ -64,11 +64,19 @@ function mulberry32(seed) {
 }
 
 function srgbToLinear(c) {
-  return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  const sign = c < 0 ? -1 : 1;
+  const abs = Math.abs(c);
+  return abs <= 0.04045
+    ? c / 12.92
+    : sign * Math.pow((abs + 0.055) / 1.055, 2.4);
 }
 
 function linearToSrgb(c) {
-  return c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055;
+  const sign = c < 0 ? -1 : 1;
+  const abs = Math.abs(c);
+  return abs <= 0.0031308
+    ? 12.92 * c
+    : sign * (1.055 * Math.pow(abs, 1 / 2.4) - 0.055);
 }
 
 function rgbToXyz([r, g, b]) {
@@ -100,9 +108,9 @@ function xyzToOklab([x, y, z]) {
   const m = 0.0329845436 * x + 0.9293118715 * y + 0.0361456387 * z;
   const s = 0.0482003018 * x + 0.2643662691 * y + 0.633851707 * z;
 
-  const l_ = Math.cbrt(Math.max(l, 0));
-  const m_ = Math.cbrt(Math.max(m, 0));
-  const s_ = Math.cbrt(Math.max(s, 0));
+  const l_ = Math.cbrt(l);
+  const m_ = Math.cbrt(m);
+  const s_ = Math.cbrt(s);
 
   return [
     0.2104542553 * l_ + 0.793617785 * m_ - 0.0040720468 * s_,
