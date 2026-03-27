@@ -75,7 +75,7 @@ async function copyToClipboardWithFeedback(button, text, copiedText = "Copied") 
   }, 900);
 }
 
-function cardForColor(hex, label = "") {
+function cardForColor(hex, label = "", rgb = null) {
   const item = document.createElement("div");
   item.className = "swatch";
 
@@ -94,6 +94,16 @@ function cardForColor(hex, label = "") {
   value.className = "swatch-hex";
   value.textContent = hex;
 
+  const rgbText =
+    Array.isArray(rgb) && rgb.length === 3
+      ? `rgb(${rgb
+          .map((v) => Math.round(clamp(Number(v), 0, 1) * 255))
+          .join(", ")})`
+      : "";
+  const rgbValue = document.createElement("code");
+  rgbValue.className = "swatch-rgb";
+  rgbValue.textContent = rgbText;
+
   const copy = document.createElement("button");
   copy.type = "button";
   copy.className = "btn-secondary swatch-copy";
@@ -109,6 +119,7 @@ function cardForColor(hex, label = "") {
 
   meta.appendChild(name);
   meta.appendChild(value);
+  if (rgbText) meta.appendChild(rgbValue);
   meta.appendChild(copy);
 
   item.appendChild(patch);
@@ -330,6 +341,7 @@ function renderPalette() {
 
   const generated = state.generated.map((c, i) => ({
     hex: c.hex,
+    rgb: c.rgb,
     label: `Generated ${i + 1}`,
   }));
   const fixedHexes = state.fixedColors
@@ -347,7 +359,7 @@ function renderPalette() {
   }
 
   for (const c of generated) {
-    dom.paletteGrid.appendChild(cardForColor(c.hex, c.label));
+    dom.paletteGrid.appendChild(cardForColor(c.hex, c.label, c.rgb));
   }
 
   renderXyyVisualizer(generated, fixedHexes);

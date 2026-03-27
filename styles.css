@@ -375,6 +375,17 @@ button:disabled {
     width: fit-content;
 }
 
+.swatch-rgb {
+    display: inline-block;
+    width: fit-content;
+    font-size: 0.84rem;
+    color: #dce7ff;
+    background: #0f1a36;
+    border: 1px solid #304a88;
+    border-radius: 8px;
+    padding: 4px 7px;
+}
+
 .swatch-copy {
     width: fit-content;
 }
